@@ -1,0 +1,6 @@
+{
+  "name": "STD / UMH Wire Harness Studio",
+  "description": "Aplikasi kalkulasi Base Cycle Time dan Standard UMH (Unit Man Hour) manufaktur Wire Harness dengan 21 item proses, mesin Dual-Mode Allowance, editor Parameter STD 2D, dan ekspor Excel/PDF.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,288 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated engineer profile and workspace preferences.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth UID."
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "User display name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 254,
+          "description": "Verified Google account email."
+        },
+        "photoURL": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Optional profile avatar URL."
+        },
+        "lastPicName": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Last responsible PIC name used during UMH Refresh."
+        },
+        "pendingMasterSync": {
+          "type": "boolean",
+          "description": "Whether master STD/Auto-Cut/Feeder changes are pending UMH Refresh."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last update timestamp."
+        }
+      },
+      "required": ["uid", "email", "pendingMasterSync", "createdAt", "updatedAt"]
+    },
+    "MasterConfig": {
+      "title": "MasterConfig",
+      "description": "User's STD parameters, 2D process matrices, Auto-Cut list, and Feeder list.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Owner Firebase Auth UID."
+        },
+        "params": {
+          "type": "array",
+          "description": "Standard process parameters list (max 300)."
+        },
+        "acMatrixMap": {
+          "type": "object",
+          "description": "Autocutting 2D matrix stored as row-keyed numeric arrays."
+        },
+        "saMatrixMap": {
+          "type": "object",
+          "description": "Semi-autocutting 2D matrix stored as row-keyed numeric arrays."
+        },
+        "mcMatrixMap": {
+          "type": "object",
+          "description": "Manual-(Air)cutting 2D matrix stored as row-keyed numeric arrays."
+        },
+        "autoCutList": {
+          "type": "array",
+          "description": "Auto-cut terminal validation list (max 2000)."
+        },
+        "feederList": {
+          "type": "array",
+          "description": "Wire seal feeder validation list (max 2000)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last update timestamp."
+        }
+      },
+      "required": [
+        "ownerId",
+        "params",
+        "acMatrixMap",
+        "saMatrixMap",
+        "mcMatrixMap",
+        "autoCutList",
+        "feederList",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AssyRecord": {
+      "title": "AssyRecord",
+      "description": "Saved wire harness Assy configuration, BOM/PPCS/COT inputs, and calculated UMH snapshot.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique Assy record ID."
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Owner Firebase Auth UID."
+        },
+        "assyNo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Assy part number."
+        },
+        "customer": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Customer name."
+        },
+        "params": {
+          "type": "object",
+          "description": "Assy production and allowance parameters."
+        },
+        "assemblyComponents": {
+          "type": "object",
+          "description": "Additional assembly component quantities."
+        },
+        "partList": {
+          "type": "array",
+          "description": "Parsed Part List BOM rows (max 2000)."
+        },
+        "ppcsList": {
+          "type": "array",
+          "description": "Parsed PPCS wire circuit rows (max 5000)."
+        },
+        "assemblyCotList": {
+          "type": "array",
+          "description": "Parsed Assembly COT/Taping/Bare rows (max 1500)."
+        },
+        "terminalRatios": {
+          "type": "object",
+          "description": "Auto-cut terminal allocation percentage map."
+        },
+        "calculation": {
+          "type": "object",
+          "description": "Calculated Base Cycle Time & Standard UMH breakdown."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last update timestamp."
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "assyNo",
+        "customer",
+        "params",
+        "assemblyComponents",
+        "partList",
+        "ppcsList",
+        "assemblyCotList",
+        "terminalRatios",
+        "calculation",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "RefreshHistoryEntry": {
+      "title": "RefreshHistoryEntry",
+      "description": "Audit log of a UMH Refresh batch run including timestamp, PIC name, and affected-only diffs.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique refresh log ID."
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Owner Firebase Auth UID."
+        },
+        "refreshedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server execution timestamp."
+        },
+        "responsibleName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Person in charge (PIC) of the UMH refresh."
+        },
+        "totalSelectedCount": {
+          "type": "number",
+          "description": "Number of Assys selected for refresh."
+        },
+        "affectedAssyCount": {
+          "type": "number",
+          "description": "Number of Assys whose UMH changed."
+        },
+        "unaffectedAssyCount": {
+          "type": "number",
+          "description": "Number of Assys unchanged."
+        },
+        "affectedDiffs": {
+          "type": "array",
+          "description": "Affected-only Assy/Process/Sub-Step diffs (max 500)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "refreshedAt",
+        "responsibleName",
+        "totalSelectedCount",
+        "affectedAssyCount",
+        "unaffectedAssyCount",
+        "affectedDiffs",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Per-user workspace profile and preferences."
+    },
+    "/masterConfigs/{userId}": {
+      "schema": {
+        "$ref": "#/entities/MasterConfig"
+      },
+      "description": "Per-user Master STD database, 2D matrices, Auto-Cut list, and Feeder list."
+    },
+    "/assyRecords/{recordId}": {
+      "schema": {
+        "$ref": "#/entities/AssyRecord"
+      },
+      "description": "User-owned Wire Harness Assy records and UMH snapshots."
+    },
+    "/refreshHistory/{historyId}": {
+      "schema": {
+        "$ref": "#/entities/RefreshHistoryEntry"
+      },
+      "description": "User-owned UMH Refresh audit history logs."
+    }
+  }
+}

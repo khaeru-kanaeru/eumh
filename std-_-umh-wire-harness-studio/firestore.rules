@@ -1,0 +1,280 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Shared Hardened Primitives
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation Blueprints
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'email', 'pendingMasterSync', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'uid',
+          'displayName',
+          'email',
+          'photoURL',
+          'lastPicName',
+          'pendingMasterSync',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 254
+        && (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 120))
+        && (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 1000))
+        && (!('lastPicName' in data) || (data.lastPicName is string && data.lastPicName.size() <= 120))
+        && data.pendingMasterSync is bool
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidMasterConfig(data) {
+      return data.keys().hasAll([
+          'ownerId',
+          'params',
+          'acMatrixMap',
+          'saMatrixMap',
+          'mcMatrixMap',
+          'autoCutList',
+          'feederList',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId',
+          'params',
+          'acMatrixMap',
+          'saMatrixMap',
+          'mcMatrixMap',
+          'autoCutList',
+          'feederList',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.ownerId)
+        && data.ownerId == request.auth.uid
+        && data.params is list && data.params.size() <= 300
+        && (data.params.size() == 0 || data.params[0] is map)
+        && data.acMatrixMap is map
+        && data.saMatrixMap is map
+        && data.mcMatrixMap is map
+        && data.autoCutList is list && data.autoCutList.size() <= 2000
+        && (data.autoCutList.size() == 0 || data.autoCutList[0] is map)
+        && data.feederList is list && data.feederList.size() <= 2000
+        && (data.feederList.size() == 0 || data.feederList[0] is map)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAssyRecord(data) {
+      return data.keys().hasAll([
+          'id',
+          'ownerId',
+          'assyNo',
+          'customer',
+          'params',
+          'assemblyComponents',
+          'partList',
+          'ppcsList',
+          'assemblyCotList',
+          'terminalRatios',
+          'calculation',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'ownerId',
+          'assyNo',
+          'customer',
+          'params',
+          'assemblyComponents',
+          'partList',
+          'ppcsList',
+          'assemblyCotList',
+          'terminalRatios',
+          'calculation',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.ownerId)
+        && data.ownerId == request.auth.uid
+        && data.assyNo is string && data.assyNo.size() >= 1 && data.assyNo.size() <= 120
+        && data.customer is string && data.customer.size() <= 120
+        && data.params is map
+        && data.assemblyComponents is map
+        && data.partList is list && data.partList.size() <= 2000
+        && (data.partList.size() == 0 || data.partList[0] is map)
+        && data.ppcsList is list && data.ppcsList.size() <= 5000
+        && (data.ppcsList.size() == 0 || data.ppcsList[0] is map)
+        && data.assemblyCotList is list && data.assemblyCotList.size() <= 1500
+        && (data.assemblyCotList.size() == 0 || data.assemblyCotList[0] is map)
+        && data.terminalRatios is map
+        && data.calculation is map
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidRefreshHistory(data) {
+      return data.keys().hasAll([
+          'id',
+          'ownerId',
+          'refreshedAt',
+          'responsibleName',
+          'totalSelectedCount',
+          'affectedAssyCount',
+          'unaffectedAssyCount',
+          'affectedDiffs',
+          'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'ownerId',
+          'refreshedAt',
+          'responsibleName',
+          'totalSelectedCount',
+          'affectedAssyCount',
+          'unaffectedAssyCount',
+          'affectedDiffs',
+          'createdAt'
+        ])
+        && isValidId(data.id)
+        && isValidId(data.ownerId)
+        && data.ownerId == request.auth.uid
+        && data.responsibleName is string && data.responsibleName.size() >= 1 && data.responsibleName.size() <= 120
+        && data.totalSelectedCount is number && data.totalSelectedCount >= 0 && data.totalSelectedCount <= 1000
+        && data.affectedAssyCount is number && data.affectedAssyCount >= 0 && data.affectedAssyCount <= 1000
+        && data.unaffectedAssyCount is number && data.unaffectedAssyCount >= 0 && data.unaffectedAssyCount <= 1000
+        && data.affectedDiffs is list && data.affectedDiffs.size() <= 500
+        && (data.affectedDiffs.size() == 0 || data.affectedDiffs[0] is map)
+        && data.refreshedAt is timestamp
+        && data.createdAt is timestamp;
+    }
+
+    // Collection 1: users/{userId}
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if false;
+      allow create: if isSignedIn()
+        && isValidId(userId)
+        && request.auth.uid == userId
+        && isValidUserProfile(incoming())
+        && incoming().uid == userId
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isSignedIn()
+        && isValidId(userId)
+        && request.auth.uid == userId
+        && isValidUserProfile(incoming())
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName',
+          'email',
+          'photoURL',
+          'lastPicName',
+          'pendingMasterSync',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // Collection 2: masterConfigs/{userId}
+    match /masterConfigs/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if false;
+      allow create: if isSignedIn()
+        && isValidId(userId)
+        && request.auth.uid == userId
+        && isValidMasterConfig(incoming())
+        && incoming().ownerId == userId
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isSignedIn()
+        && isValidId(userId)
+        && request.auth.uid == userId
+        && isValidMasterConfig(incoming())
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'params',
+          'acMatrixMap',
+          'saMatrixMap',
+          'mcMatrixMap',
+          'autoCutList',
+          'feederList',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // Collection 3: assyRecords/{recordId}
+    match /assyRecords/{recordId} {
+      allow get: if isSignedIn() && isValidId(recordId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn()
+        && isValidId(recordId)
+        && isValidAssyRecord(incoming())
+        && incoming().id == recordId
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isSignedIn()
+        && isValidId(recordId)
+        && existing().ownerId == request.auth.uid
+        && isValidAssyRecord(incoming())
+        && incoming().id == existing().id
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'assyNo',
+          'customer',
+          'params',
+          'assemblyComponents',
+          'partList',
+          'ppcsList',
+          'assemblyCotList',
+          'terminalRatios',
+          'calculation',
+          'updatedAt'
+        ]);
+      allow delete: if isSignedIn() && isValidId(recordId) && existing().ownerId == request.auth.uid;
+    }
+
+    // Collection 4: refreshHistory/{historyId}
+    match /refreshHistory/{historyId} {
+      allow get: if isSignedIn() && isValidId(historyId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn()
+        && isValidId(historyId)
+        && isValidRefreshHistory(incoming())
+        && incoming().id == historyId
+        && incoming().refreshedAt == request.time
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isSignedIn() && isValidId(historyId) && existing().ownerId == request.auth.uid;
+    }
+  }
+}
