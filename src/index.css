@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-num: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  html,
+  body {
+    font-family: var(--font-sans);
+    background-color: #f4f6f9;
+    background-image: radial-gradient(rgba(148, 163, 184, 0.28) 0.85px, transparent 0.85px);
+    background-size: 24px 24px;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Strictly keep Inter with tabular-nums for all numbers and engineering figures */
+.font-mono-num {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Clean Japanese Precision Manufacturing Surfaces (Rounded Corners + Hairline Borders) */
+.glass-surface {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 6px 20px -10px rgba(15, 23, 42, 0.06);
+}
+
+.glass-header {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.glass-modal {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow:
+    0 24px 56px -12px rgba(15, 23, 42, 0.22),
+    0 4px 16px -4px rgba(15, 23, 42, 0.08);
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+}
